@@ -1,8 +1,7 @@
 import psycopg2
 from psycopg2 import Error
 
-DB_URL="postgres://nwvzmcdjzclaxh:be877a3ee92c0212c530e7810f3de57f0743180da0a5bea2a"\
-       "3a9f9a66f79e3c2@ec2-3-93-206-109.compute-1.amazonaws.com:5432/dfhpqakdtl0sv7"
+DB_URL="postgres://nwvzmcdjzclaxh:be877a3ee92c0212c530e7810f3de57f0743180da0a5bea2a3a9f9a66f79e3c2@ec2-3-93-206-109.compute-1.amazonaws.com:5432/dfhpqakdtl0sv7"
 
 class DataBase:
     def __init__(self):
