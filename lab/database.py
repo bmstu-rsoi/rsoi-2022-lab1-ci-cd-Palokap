@@ -1,8 +1,8 @@
 import psycopg2
 from psycopg2 import Error
 
-DB_URL="postgres://nwvzmcdjzclaxh:be877a3ee92c0212c530e7810f3de57f0743180da0a5bea2a3a9f9a66f79e3c2@ec2-3-93-206-109.compute-1.amazonaws.com:5432/dfhpqakdtl0sv7"
-
+DB_URL="postgres://rcbpriibskjppp:95715df182d18d4ae450268d5a914062276e41ef746ff45fba2eb1832ab5bc6a@ec2-34-199-68-114" \
+       ".compute-1.amazonaws.com:5432/dapcvpsn47bj5i"
 class DataBase:
     def __init__(self):
         try:
@@ -18,10 +18,7 @@ class DataBase:
                   WHERE table_schema = 'public'""")
         for table in self.cursor.fetchall():
             if table[0] == "persons":
-                self.cursor.close()
                 return True
-        self.cursor.close()
-        self.db.close()
         return False
 
     def create_table(self):
@@ -35,29 +32,25 @@ class DataBase:
                                    ); '''
         self.cursor.execute(create_table_query)
         self.db.commit()
-        self.cursor.close()
-        self.db.close()
 
     def get_person(self, person_id):
 
-        self.cursor.execute(f"SELECT * From persons WHERE person_id={person_id};")
+        self.cursor.execute(f"SELECT * FROM persons WHERE PersonID={person_id};")
         self.db.commit()
 
         row = self.cursor.fetchone()
         d = dict()
-        d["id"] = row[0]
+        d["id"] = int(row[0])
         d["name"] = row[1]
         d["address"] = row[2]
         d["work"] = row[3]
         d["age"] = row[4]
-        self.cursor.close()
-        self.db.close()
         return d
 
     def get_all_persons(self):
         self.cursor.execute(f"SELECT * From persons;")
-        persons = self.cursor.fetchall()
-        self.db.commit()
+        # persons = self.cursor.()
+        # self.db.commit()
 
         rows = self.cursor.fetchall()
         objects_list = []
@@ -69,21 +62,15 @@ class DataBase:
             d["work"] = row[3]
             d["age"] = row[4]
             objects_list.append(d)
-        self.cursor.close()
-        self.db.close()
-        return persons
+        return objects_list
 
-    def post_person(self, new_info):
+    def post_person(self, insert_data):
 
-        self.cursor.execute(
-            f"INSERT INTO persons (person_id, name, address, work, age) VALUES (DEFAULT, '{new_info['name']}', "
-            f"'{new_info['address']}', '{new_info['work']}', '{new_info['age']}') "
-            f"RETURNING person_id;")
+        insert_query = "INSERT INTO persons (NAME, ADDRESS, WORK, AGE) " \
+                       "VALUES (%s,%s,%s,%s) RETURNING PersonID"
+        self.cursor.execute(insert_query, insert_data)
         self.db.commit()
-        person = self.cursor.fetchone()
-        self.cursor.close()
-        self.db.close()
-        return person[0]
+        return self.cursor.fetchone()
 
     def patch_person(self, person_id, update_data):
         params = ""
@@ -105,13 +92,14 @@ class DataBase:
         d["address"] = row[2]
         d["work"] = row[3]
         d["age"] = row[4]
-        self.cursor.close()
-        self.db.close()
+        self.db.commit()
         return d
 
     def delete_person(self, person_id):
-        self.cursor.execute(f"DELETE FROM persons WHERE person_id={person_id};")
+        self.cursor.execute(f"DELETE FROM persons WHERE personID={person_id};")
         self.db.commit()
+        return
+
+    def disconnect(self):
         self.cursor.close()
         self.db.close()
-        return
